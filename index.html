@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Scroll</title>
+	<style type="text/css">
+	*{
+		padding: 0;
+		margin: 0;
+	}
+	.scroll{
+		position: relative;
+		z-index: 1;
+		padding-right:8px;
+	}
+
+	.scroll .slide{
+		position: absolute;
+		width:4px;
+		height:50%;
+		top:0;
+		right: 0;
+		cursor:pointer;
+		border-radius: 2px;
+		background-color: rgba(0, 0, 0, 0.75);
+		*background-color: #ddd;
+	}
+
+	</style>
+</head>
+<body>
+	<div id="scrolldiv" style="width:200px;height:200px;line-height: 50px;margin:50px auto;background-color: #eee;padding:10px;">
+		<p>Start..</p>
+		<p>fdasgdgfdsfdsafsadfs dfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>End</p>
+	</div>
+
+	<div id="scrolldiv2" style="width:200px;height:200px;line-height: 50px;margin:50px auto;background-color: #eee;">
+		<p>Start..</p>
+		<p>fdasgdgfdsfdsafsadfs dfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadfs dfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadfs dfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadfs dfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>fdasgdgfdsfdsafsadf sdfsad</p>
+		<p>End</p>
+	</div>
+
+	<script type="text/javascript">
+
+		var ScrollAs = function(el, opt){
+			if(Object.prototype.toString.call(opt) !== "[object Object]") throw('opt is not Object!');
+
+			this.slideColor = opt.color;			//滑块颜色
+			this.speed = opt.speed || 10;			//每次滑动的距离
+			this.slideSpeed = opt.slideSpeed || 5;	//滑块每次滑动的距离
+			this.css = opt.css || 'scroll';			//主题样式
+			this.el = el;
+			this.init();
+			// for(let k in el) console.log(k, el[k]);
+		}
+
+		ScrollAs.prototype.isFirefox = navigator.userAgent.indexOf && navigator.userAgent.indexOf('Firefox') >= 0;
+
+		ScrollAs.prototype.init = function(){
+			this.el.classList.add(this.css)
+			this.el.style.overflow = 'hidden';
+			this.mousewheel(this.el, this.scrollFunc.bind(this));
+			this.maxScollHeight = this.el.scrollHeight - this.el.offsetHeight;
+			this.calcSlideHeight(this.slideSpeed);
+			this.ratio = (this.slideSpeed + this.speed) / this.speed;
+			this.slideRatio = (this.maxScollHeight + this.el.offsetHeight - this.slideHeight) / this.maxScollHeight;
+			this.slideDomTop = 0;
+		}
+
+		ScrollAs.prototype.calcSlideHeight = function(slideSpeed) {
+			this.slideHeight = this.el.offsetHeight - (slideSpeed||this.speed) * this.maxScollHeight / this.speed;
+			if(this.slideHeight <= 20){
+				if(this.slideSpeed > 1) 
+					this.slideSpeed = slideSpeed - 1;
+				else
+					this.speed += 1;
+				this.calcSlideHeight(this.slideSpeed);
+				return;
+			}
+
+			this.slideDom = this.addSlideDom(this.slideHeight);
+			this.addEventSlide();
+			console.log(this.slideSpeed)
+		};
+
+		ScrollAs.prototype.slidemove = function(e) {
+			e || (e = window.event);
+			if(e.stopPropagation){
+				e.stopPropagation();
+				e.preventDefault();
+			}
+			window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
+
+			var dir = e.clientY > this.slideY,
+				_y = Math.abs(e.clientY - this.slideY),
+				speed = this.speed / this.slideSpeed * _y * this.slideRatio; //鼠标每一像素所需移动的距离 * 移动了多少像素 * 比率
+			
+			this.setScrollTop(dir, speed);
+			this.slideY = e.clientY;
+		};
+
+		ScrollAs.prototype.slideup = function(e) {
+			document.onmousemove = null;
+		};
+
+		ScrollAs.prototype.addEventSlide = function() {
+			var _self = this;
+			_self.addEventListener(_self.slideDom,'onmousedown',function(e){
+				_self.slideY = e.clientY;
+				document.onmousemove = _self.slidemove.bind(_self);
+			});
+			_self.addEventListener(document,'onmouseup', _self.slideup.bind(_self));
+		};
+
+		ScrollAs.prototype.addSlideDom = function(h) {
+			var el = document.createElement('div');
+			el.className ='slide';
+			el.style.height = h + 'px';
+			this.el.appendChild(el);
+			return el;
+		};	
+
+		ScrollAs.prototype.mousewheel = function(el,callback) {
+
+			if(this.isFirefox){
+				this.addEventListener(el, 'DOMMouseScroll', callback, false); 
+			}else{
+				this.addEventListener(el, 'onmousewheel', callback, false); 
+			}
+		};
+
+		ScrollAs.prototype.setScrollTop = function(dir, speed) {
+			var _self = this, _scrollTop;
+
+			if(dir){
+				_self.el.scrollTop += speed
+			}else{
+				_self.el.scrollTop -= speed
+			}
+
+			_self.slideDom.style.top = _self.el.scrollTop * _self.ratio + 'px';
+
+			// _self.animate(_self.el,null,'scrollTop',_scrollTop,1000,function(v){ console.log(v)
+			// 	_self.slideDom.style.top = _self.el.scrollTop * _self.ratio + 'px';
+			// });
+		};
+
+		ScrollAs.prototype.scrollFunc = function(e) {
+			var _e = e || window.event,
+				sDir = this.isScrollDirection(_e);
+			if(_e.stopPropagation){
+				_e.stopPropagation();
+				_e.preventDefault();
+			}
+			
+			this.setScrollTop(sDir, this.speed)
+		};
+
+		ScrollAs.prototype.isScrollDirection = function(e){ 
+			var direct = 0; 
+			
+			if(e.wheelDelta){//IE/Opera/Chrome 
+				direct = e.wheelDelta;
+			}else if(e.detail){//Firefox
+				direct = e.detail;
+			}
+			
+			return this.isFirefox ? direct > 0 : direct < 0;
+		}
+
+		ScrollAs.prototype.animate = function(el,type,key,toVal,time,callback) {
+			var _t = 50;
+			el.animate = null;
+			if(type == 'style'){
+				var ratio = (toVal - parseFloat(el.style[key])) / time * _t;
+				el.animate = function(){
+					var _v = parseFloat(el.style[key]) + ratio,
+						dir = ratio > 0 ? _v <= toVal : _v >= toVal;
+					if(dir){
+						el.style[key] = _v + 'px';
+						if(el.animate) setTimeout(el.animate,_t);
+					}else{
+						el.style[key] = toVal + 'px';
+					}
+					if(callback) callback(_v);
+				}
+			}else{
+				var ratio = (toVal - el[key]) / time * _t;
+				console.log(ratio)
+				el.animate = function(){
+					var _v = el[key] + ratio,
+						dir = ratio > 0 ? _v <= toVal : _v >= toVal;
+					if(dir){
+						el[key] = _v;
+						if(el.animate) setTimeout(el.animate,_t);
+					}else{
+						el[key] = toVal;
+					}
+					if(callback) callback(_v);
+				}
+			}
+			el.animate()
+		};
+
+		ScrollAs.prototype.addEventListener = function(ele, event_name, func) {
+			if(window.attachEvent){
+	            ele.attachEvent(event_name, func);
+	        }
+	        else{
+	            event_name = event_name.replace(/^on/, "");
+	            ele.addEventListener(event_name, func, false);    //默认事件是冒泡
+	        }
+		};
+
+		ScrollAs.prototype.removeEventListener = function(ele, event_name, func) {
+			if(window.detachEvent){
+                ele.detachEvent(event_name, func);
+            }
+            else{
+                event_name = event_name.replace(/^on/, "");
+                ele.removeEventListener(event_name, func);
+            }
+		};
+
+		var sl = document.getElementById('scrolldiv')
+		var s2 = document.getElementById('scrolldiv2')
+
+		var scrollObj = new ScrollAs(sl,{color:'#ddd'})
+		var scrollObj2 = new ScrollAs(s2,{color:'#888',speed:20})
+
+		console.log(scrollObj2)
+
+	</script>
+</body>
+</html>
