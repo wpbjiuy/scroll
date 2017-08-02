@@ -79,7 +79,7 @@
 	<script type="text/javascript">
 
 		var ScrollAs = function(el, opt){
-			if(Object.prototype.toString.call(opt) !== "[object Object]") throw('opt is not Object!');
+			if((opt || (opt = {})) && Object.prototype.toString.call(opt) !== "[object Object]") throw('opt is not Object!');
 
 			this.slideColor = opt.color;			//滑块颜色
 			this.speed = opt.speed || 10;			//每次滑动的距离
@@ -92,14 +92,21 @@
 		ScrollAs.prototype.isFirefox = navigator.userAgent.indexOf && navigator.userAgent.indexOf('Firefox') >= 0;
 
 		ScrollAs.prototype.init = function(){
-			this.el.classList.add(this.css)
+			"use strict";
+			this.el.classList.add(this.css);
 			this.el.style.overflow = 'hidden';
 			this.mousewheel(this.el, this.scrollFunc.bind(this));
+			this.addSlideDom(this.slideHeight);
+			this.resize();
+			this.addEventSlide();
+			this.slideDomTop = 0;
+		}
+
+		ScrollAs.prototype.resize = function() {
 			this.maxScollHeight = this.el.scrollHeight - this.el.offsetHeight;
 			this.calcSlideHeight(this.slideSpeed);
 			this.ratio = (this.slideSpeed + this.speed) / this.speed;
-			this.slideDomTop = 0;
-		}
+		};
 
 		ScrollAs.prototype.calcSlideHeight = function(slideSpeed) {
 			this.slideHeight = this.el.offsetHeight - (slideSpeed||this.speed) * this.maxScollHeight / this.speed;
@@ -111,10 +118,7 @@
 				this.calcSlideHeight(this.slideSpeed);
 				return;
 			}
-
-			this.slideDom = this.addSlideDom(this.slideHeight);
-			this.addEventSlide();
-			console.log(this.slideSpeed)
+			this.slideDom.style.height = this.slideHeight + 'px';
 		};
 
 		ScrollAs.prototype.slidemove = function(e) {
@@ -146,11 +150,12 @@
 			_self.addEventListener(document,'onmouseup', _self.slideup.bind(_self));
 		};
 
-		ScrollAs.prototype.addSlideDom = function(h) {
+		ScrollAs.prototype.addSlideDom = function() {
 			var el = document.createElement('div');
 			el.className ='slide';
-			el.style.height = h + 'px';
+			el.style.backgroundColor = this.slideColor;
 			this.el.appendChild(el);
+			this.slideDom = el;
 			return el;
 		};	
 
@@ -259,8 +264,8 @@
 		var sl = document.getElementById('scrolldiv')
 		var s2 = document.getElementById('scrolldiv2')
 
-		var scrollObj = new ScrollAs(sl,{color:'#ddd'})
-		var scrollObj2 = new ScrollAs(s2,{color:'#888',speed:20})
+		var scrollObj = new ScrollAs(sl)
+		var scrollObj2 = new ScrollAs(s2,{color:'#acb',speed:20})
 
 		console.log(scrollObj,scrollObj2)
 
