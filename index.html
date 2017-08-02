@@ -32,10 +32,6 @@
 	<div id="scrolldiv" style="width:200px;height:200px;line-height: 50px;margin:50px auto;background-color: #eee;padding:10px;">
 		<p>Start..</p>
 		<p>fdasgdgfdsfdsafsadfs dfsad</p>
-		<p>fdasgdgfdsfdsafsadf sdfsad</p>
-		<p>fdasgdgfdsfdsafsadf sdfsad</p>
-		<p>fdasgdgfdsfdsafsadf sdfsad</p>
-		<p>fdasgdgfdsfdsafsadf sdfsad</p>
 		<p>End</p>
 	</div>
 
@@ -96,7 +92,7 @@
 			this.el.classList.add(this.css);
 			this.el.style.overflow = 'hidden';
 			this.mousewheel(this.el, this.scrollFunc.bind(this));
-			this.addSlideDom(this.slideHeight);
+			this.createSlideDom();
 			this.resize();
 			this.addEventSlide();
 			this.slideDomTop = 0;
@@ -106,6 +102,12 @@
 			this.maxScollHeight = this.el.scrollHeight - this.el.offsetHeight;
 			this.calcSlideHeight(this.slideSpeed);
 			this.ratio = (this.slideSpeed + this.speed) / this.speed;
+			
+			if(this.maxScollHeight <= 0)
+				this.slideDom.parentNode && this.el.removeChild(this.slideDom);
+			else
+				this.el.appendChild(this.slideDom);
+			return this;
 		};
 
 		ScrollAs.prototype.calcSlideHeight = function(slideSpeed) {
@@ -150,11 +152,10 @@
 			_self.addEventListener(document,'onmouseup', _self.slideup.bind(_self));
 		};
 
-		ScrollAs.prototype.addSlideDom = function() {
+		ScrollAs.prototype.createSlideDom = function() {
 			var el = document.createElement('div');
 			el.className ='slide';
 			el.style.backgroundColor = this.slideColor;
-			this.el.appendChild(el);
 			this.slideDom = el;
 			return el;
 		};	
