@@ -87,7 +87,6 @@
 			this.css = opt.css || 'scroll';			//主题样式
 			this.el = el;
 			this.init();
-			// for(let k in el) console.log(k, el[k]);
 		}
 
 		ScrollAs.prototype.isFirefox = navigator.userAgent.indexOf && navigator.userAgent.indexOf('Firefox') >= 0;
@@ -99,7 +98,6 @@
 			this.maxScollHeight = this.el.scrollHeight - this.el.offsetHeight;
 			this.calcSlideHeight(this.slideSpeed);
 			this.ratio = (this.slideSpeed + this.speed) / this.speed;
-			this.slideRatio = (this.maxScollHeight + this.el.offsetHeight - this.slideHeight) / this.maxScollHeight;
 			this.slideDomTop = 0;
 		}
 
@@ -129,8 +127,8 @@
 
 			var dir = e.clientY > this.slideY,
 				_y = Math.abs(e.clientY - this.slideY),
-				speed = this.speed / this.slideSpeed * _y * this.slideRatio; //鼠标每一像素所需移动的距离 * 移动了多少像素 * 比率
-			
+				speed = this.speed / this.slideSpeed * _y; 
+
 			this.setScrollTop(dir, speed);
 			this.slideY = e.clientY;
 		};
@@ -264,7 +262,7 @@
 		var scrollObj = new ScrollAs(sl,{color:'#ddd'})
 		var scrollObj2 = new ScrollAs(s2,{color:'#888',speed:20})
 
-		console.log(scrollObj2)
+		console.log(scrollObj,scrollObj2)
 
 	</script>
 </body>
