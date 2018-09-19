@@ -81,6 +81,11 @@
 		var ScrollAs = function(el, opt){
 			if((opt || (opt = {})) && Object.prototype.toString.call(opt) !== "[object Object]") throw('opt is not Object!');
 
+			this.sn = 0;
+			this.xsn = 2;
+			this.snTime = Date.now();
+			this.snDir = null;
+
 			this.slideColor = opt.color;			//滑块颜色
 			this.speed = opt.speed || 10;			//每次滑动的距离
 			this.slideSpeed = opt.slideSpeed || 5;	//滑块每次滑动的距离
@@ -132,6 +137,9 @@
 			if(e.stopPropagation){
 				e.stopPropagation();
 				e.preventDefault();
+			}else{
+				e.cancelBubble = true;
+	            e.returnValue = false;
 			}
 			window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
 
@@ -173,16 +181,40 @@
 			}
 		};
 
-		ScrollAs.prototype.setScrollTop = function(dir, speed) {
-			var _self = this, _scrollTop;
+		ScrollAs.prototype.setScrollTop = function(dir, speed, isSn) {
+			var _self = this;
+			if(!_self.toScrollTop) _self.toScrollTop = _self.el.scrollTop;
 
-			if(dir){
-				_self.el.scrollTop += speed
+			if(isSn){
+				if(_self.snDir == dir && Date.now() - _self.snTime < 600) 
+					_self.sn += _self.xsn;
+				else
+					_self.sn = 0;
+
+				_self.snDir = dir;
+
+				_self.snTime = Date.now();
 			}else{
-				_self.el.scrollTop -= speed
+				_self.sn = 0;
 			}
 
-			_self.slideDom.style.top = _self.el.scrollTop * _self.ratio + 'px';
+			if(dir){
+				_self.toScrollTop += speed + _self.sn;
+			}else{
+				_self.toScrollTop -= speed + _self.sn;
+			}
+
+			if(_self.toScrollTop < 0) _self.toScrollTop = 0;
+
+			if(_self.toScrollTop > _self.maxScollHeight) _self.toScrollTop = _self.maxScollHeight;
+
+			if(isSn && window.jQuery && $ == jQuery){
+				$(_self.slideDom).stop(true).animate({top:_self.toScrollTop * _self.ratio + 'px'},280);
+				$(_self.el).stop(true).animate({scrollTop:_self.toScrollTop + 'px'},280);
+			}else{
+				_self.slideDom.style.top = _self.toScrollTop * _self.ratio + 'px';
+				_self.el.scrollTop = _self.toScrollTop;
+			}
 
 			// _self.animate(_self.el,null,'scrollTop',_scrollTop,1000,function(v){ console.log(v)
 			// 	_self.slideDom.style.top = _self.el.scrollTop * _self.ratio + 'px';
@@ -195,9 +227,12 @@
 			if(_e.stopPropagation){
 				_e.stopPropagation();
 				_e.preventDefault();
+			}else{
+				e.cancelBubble = true;
+	            e.returnValue = false;
 			}
 			
-			this.setScrollTop(sDir, this.speed)
+			this.setScrollTop(sDir, this.speed, true)
 		};
 
 		ScrollAs.prototype.isScrollDirection = function(e){ 
