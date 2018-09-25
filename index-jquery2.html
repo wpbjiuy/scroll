@@ -180,6 +180,9 @@
 
 		ScrollAs.prototype.scrollFunc = function(e) { 
 			var sDir = this.isScrollDirection(e.originalEvent);
+
+			if((sDir && this.scDom[0].scrollTop == this.maxScollHeight) || (!sDir && this.scDom[0].scrollTop == 0)) return;
+
 			if(e.stopPropagation){
 				e.stopPropagation();
 				e.preventDefault();
@@ -270,10 +273,10 @@
 			var _self = this;
 			if(!_self.toScrollTop) _self.toScrollTop = _self.scDom[0].scrollTop;
 
-			var anTime = isSn ? 600 : 0;
+			var anTime = isSn ? 400 : 0;
 			
 			if(isSn){
-				if(_self.snDir == dir && Date.now() - _self.snTime < 600) 
+				if(_self.snDir == dir && Date.now() - _self.snTime < 400) 
 					_self.sn += _self.xsn;
 				else
 					_self.sn = 0;
@@ -299,10 +302,10 @@
 
 			if(_self.toScrollTop > _self.maxScollHeight) _self.toScrollTop = _self.maxScollHeight;
 
-			// _self.slideDom.stop().animate({'top': _self.toScrollTop /_self.maxScollHeight*_self.maxScollSlideHeight + 'px'},anTime);
-			// _self.scDom.stop().animate({scrollTop:_self.toScrollTop+'px'},anTime);
-			_self.slideDom.css({'top': _self.toScrollTop /_self.maxScollHeight*_self.maxScollSlideHeight + 'px'});
-			_self.scDom[0].scrollTop = _self.toScrollTop;
+			_self.slideDom.stop().animate({'top': _self.toScrollTop /_self.maxScollHeight*_self.maxScollSlideHeight + 'px'},280);
+			_self.scDom.stop().animate({scrollTop:_self.toScrollTop+'px'},280);
+			// _self.slideDom.css({'top': _self.toScrollTop /_self.maxScollHeight*_self.maxScollSlideHeight + 'px'});
+			// _self.scDom[0].scrollTop = _self.toScrollTop;
 		};
 
 		var s1 = $('#scrolldiv').mCustomScrollbar();

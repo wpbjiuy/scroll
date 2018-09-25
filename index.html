@@ -186,7 +186,7 @@
 			if(!_self.toScrollTop) _self.toScrollTop = _self.el.scrollTop;
 
 			if(isSn){
-				if(_self.snDir == dir && Date.now() - _self.snTime < 600) 
+				if(_self.snDir == dir && Date.now() - _self.snTime < 400) 
 					_self.sn += _self.xsn;
 				else
 					_self.sn = 0;
@@ -225,7 +225,7 @@
 			var _e = e || window.event,
 				sDir = this.isScrollDirection(_e);
 
-			if((sDir && this.toScrollTop == this.maxScollHeight) || (!sDir && this.toScrollTop == 0)) return;
+			if((sDir && this.el.scrollTop == this.maxScollHeight) || (!sDir && this.el.scrollTop == 0)) return;
 			
 			if(_e.stopPropagation){
 				_e.stopPropagation();
