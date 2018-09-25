@@ -224,6 +224,9 @@
 		ScrollAs.prototype.scrollFunc = function(e) {
 			var _e = e || window.event,
 				sDir = this.isScrollDirection(_e);
+
+			if((sDir && this.toScrollTop == this.maxScollHeight) || (!sDir && this.toScrollTop == 0)) return;
+			
 			if(_e.stopPropagation){
 				_e.stopPropagation();
 				_e.preventDefault();
